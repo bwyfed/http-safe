@@ -1,0 +1,27 @@
+{
+  "name": "http-safe",
+  "version": "1.0.0",
+  "description": "web frontend safe function",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node ./server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bwyfed/http-safe.git"
+  },
+  "keywords": [
+    "http",
+    "safe",
+    "frontend"
+  ],
+  "author": "Bianwangyang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bwyfed/http-safe/issues"
+  },
+  "homepage": "https://github.com/bwyfed/http-safe#readme",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}
