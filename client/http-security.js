@@ -36,7 +36,7 @@
     var httphijack = function() {},
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
-        scanInlineElement = false; //是否需要扫描内联事件
+        scanInlineElement = true; //是否需要扫描内联事件
 
     // 安全域，白名单
     var safeList = [
@@ -127,7 +127,7 @@
             }
         }
 
-        (new Image).src = 'http://h5.yy.com/hostage/report?' + queryStr;
+        (new Image).src = 'http://localhost:3000/api/report?' + queryStr;
     }
     /**
      * 过滤指定关键字
