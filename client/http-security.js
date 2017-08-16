@@ -1,4 +1,36 @@
-
+/**
+ * @author Bianwangyang
+ * @name http-safe 1.1.0
+ * @created : 2017-08-15
+ * @description 使用Javascript实现前端防御http劫持及防御XSS攻击，并且对可疑攻击进行上报
+ * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ *
+ 1、使用方法：调用 httphijack.init({
+        "staticScript": false,
+        "dynamicScript": function(){
+            console.log("dynamicScript callback");
+		},
+        "inlineEvent": function(){
+            console.log("inlineEvent callback");
+		},
+        "lockCallAndApply":function () {
+			console.log("lockCallAndApply callback");
+        },
+        "iframe": function(){
+            console.log("iframe callback");
+		},
+        "iframeSrc": false
+})
+ 3、防范范围：
+ 1）所有内联事件执行的代码
+ 2）href 属性 javascript: 内嵌的代码
+ 3）静态脚本文件内容
+ 4）动态添加的脚本文件内容
+ 5）document-write添加的内容
+ 6）iframe嵌套
+ *
+ */
+'use strict';
 (function(root) {
 
     var httphijack = function() {},

@@ -9,9 +9,9 @@ const path = require('path');
 const app = express();
 
 const port = 3000;
-const uri = 'http://localhost:' + port;
+const uri = 'http://localhost:' + port + '/index.html';
+app.use(express.static(path.join(__dirname,'../client')));   //托管静态资源
 app.use('/',function (req,res) {
-//     res.render(path.join(__dirname,'../client/index.html'));
     res.sendFile(path.join(__dirname,'../client/index.html'));
 });
 // app.use(express.static(path.join(__dirname,'../client/index.html')));
