@@ -1,37 +1,5 @@
-/**
- * @author Bianwangyang
- * @name http-safe 1.1.0
- * @created : 2017-08-15
- * @description 使用Javascript实现前端防御http劫持及防御XSS攻击，并且对可疑攻击进行上报
- * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- *
-1、使用方法：调用 httphijack.init({
-        "staticScript": false,
-        "dynamicScript": function(){
-            console.log("dynamicScript callback");
-		},
-        "inlineEvent": function(){
-            console.log("inlineEvent callback");
-		},
-        "lockCallAndApply":function () {
-			console.log("lockCallAndApply callback");
-        },
-        "iframe": function(){
-            console.log("iframe callback");
-		},
-        "iframeSrc": false
-})
-3、防范范围：
-   1）所有内联事件执行的代码
-   2）href 属性 javascript: 内嵌的代码
-   3）静态脚本文件内容
-   4）动态添加的脚本文件内容
-   5）document-write添加的内容
-   6）iframe嵌套
- *
- */
-'use strict';
-(function(window) {
+
+(function(root) {
 
     var httphijack = function() {},
         inlineEventMap = {}, //内联事件扫描记录
@@ -76,7 +44,7 @@
     ];
     // reset console
     if (!console) {
-        window.console = {
+        root.console = {
             log: function() {
                 return true;
             }
@@ -99,7 +67,7 @@
             'parm1': fUrl
         };
         h5Report(url, className, eName, fUrl);
-        window.on_security_interdiction && window.on_security_interdiction.call(window, hiidoParam);
+        root.on_security_interdiction && root.on_security_interdiction.call(root, hiidoParam);
     }
 
     /**
@@ -117,8 +85,8 @@
         databody.classname = className ? className : '';
         databody.name = eName ? eName : '';
         databody.iframeurl = iframeUrl ? iframeUrl : '';
-        databody.pathname = window.location.pathname;
-        databody.hostname = window.location.hostname;
+        databody.pathname = root.location.pathname;
+        databody.hostname = root.location.hostname;
         databody.ua = navigator.userAgent;
 
         for (var n in databody) {
@@ -249,7 +217,7 @@
      * @return {[type]} [description]
      */
     function interceptionStaticScript(callback) {
-        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
         var observer = new MutationObserver(function(mutations) {
@@ -312,14 +280,14 @@
     }
 
     /**
-     * 重写单个 window 窗口的 document.write 属性
-     * @param  {[BOM]} window [浏览器window对象]
+     * 重写单个 root 窗口的 document.write 属性
+     * @param  {[BOM]} root [浏览器window对象]
      * @return {[type]}       [description]
      */
-    function resetDocumentWrite(window) {
-        var overWrite = window.document.write;
+    function resetDocumentWrite(root) {
+        var overWrite = root.document.write;
 
-        window.document.write = function(string) {
+        root.document.write = function(string) {
             if (filter(filterClassName, string) || filter(filterProName, string) || filter(filterNodeId, string)) {
                 hiidoStat('', string, '', '');
                 // console.log('拦截可疑模块:', string);
@@ -330,14 +298,14 @@
     }
 
     /**
-     * 重写单个 window 窗口的 setAttribute 属性
-     * @param  {[BOM]} window [浏览器window对象]
+     * 重写单个 root 窗口的 setAttribute 属性
+     * @param  {[BOM]} root [浏览器window对象]
      * @return {[type]} [description]
      */
-    function resetSetAttribute(window) {
-        var overWrite = window.Element.prototype.setAttribute;
+    function resetSetAttribute(root) {
+        var overWrite = root.Element.prototype.setAttribute;
 
-        window.Element.prototype.setAttribute = function(name, value) {
+        root.Element.prototype.setAttribute = function(name, value) {
             if (this.tagName === 'SCRIPT' && /^src$/i.test(name)) {
                 if (!filter(safeList, value)) {
                     hiidoStat(value, '', '', '');
@@ -356,24 +324,24 @@
      */
     function defenseIframe(callback) {
         // 先保护当前页面
-        installHook(window);
+        installHook(root);
         if(callback&&typeof callback==='function') {
             callback();
         }
     }
 
     /**
-     * 实现单个 window 窗口的 setAttribute保护
-     * @param  {[BOM]} window [浏览器window对象]
+     * 实现单个 root 窗口的 setAttribute保护
+     * @param  {[BOM]} root [浏览器window对象]
      * @return {[type]}       [description]
      */
-    function installHook(window) {
+    function installHook(root) {
 
-        resetSetAttribute(window);
-        resetDocumentWrite(window);
+        resetSetAttribute(root);
+        resetDocumentWrite(root);
 
         // MutationObserver 的不同兼容性写法
-        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         if (!MutationObserver) return;
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
@@ -547,7 +515,7 @@
             return httphijack;
         });
     } else {
-        window.httphijack = httphijack;
+        root.httphijack = httphijack;
     }
 
     // 不支持 IE8-
@@ -558,4 +526,4 @@
             httphijack.init();
         }
     }
-})(window);
+}(window))

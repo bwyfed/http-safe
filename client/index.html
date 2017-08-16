@@ -2,40 +2,40 @@
 <html>
 <head>
 	<title>Http Security Test</title>
+	<style type="text/css">
+		.container{
+			overflow: hidden;
+			width: 800px;
+		}
+		.btn{
+			font-size: 18px;
+			display: block;
+			float: left;
+			padding: 10px;
+			cursor: pointer;
+			background-color: #03A9F4;
+			color: #fff;
+			margin-right: 20px;
+			margin-bottom: 40px;
+		}
+		.btn:hover{
+			background-color: #1B84B3;
+		}
+		.cf::after{
+			content: "";
+			visibility:hidden;
+			display: block;
+			height: 0;
+			clear: both;
+		}
+		#cnzz_stat_icon_1259441963 {
+			display: block;
+			width: 0;
+			height: 0;
+			overflow: hidden;
+		}
+	</style>
 </head>
-<style type="text/css">
-.container{
-	overflow: hidden;
-	width: 800px;
-}
-.btn{
-	font-size: 18px;
-	display: block;
-	float: left;
-	padding: 10px;
-	cursor: pointer;
-	background-color: #03A9F4;
-	color: #fff;
-	margin-right: 20px;
-	margin-bottom: 40px;
-}
-.btn:hover{
-	background-color: #1B84B3;
-}
-.cf::after{
-	content: "";
-	visibility:hidden;
-	display: block;
-	height: 0;
-	clear: both;
-}
-#cnzz_stat_icon_1259441963 {
-	display: block;
-	width: 0;
-	height: 0;
-	overflow: hidden;
-}
-</style>
 <body>
 <a style="width:149px;height:149px;position:fixed;top:0;right:0;z-index:9999;" href="https://github.com/chokcoco/css3-" target="_blank">
   <img src="http://chokcoco.github.io/demo/curveJS/images/forkme.png">
@@ -74,6 +74,7 @@
         "iframeSrc": defaultCallback
     };
     */
+	/*
 	window.httphijack.init({
         "staticScript": false,
         "dynamicScript": function(){
@@ -90,6 +91,7 @@
 		},
         "iframeSrc": false
 	});
+	*/
 
 	// 动态添加可疑脚本文件
 	document.getElementById('btn-append-xss-js').addEventListener('click', function(){
@@ -123,7 +125,7 @@
 		document.getElementsByTagName('body')[0].appendChild(script);
 	});
 </script>
-<script type="text/javascript" src="./xss/a.js"></script>
+<!--<script type="text/javascript" src="./xss/a.js"></script>-->
 <!-- <iframe srcdoc="<p>XSS Hijack!</p>" src="http://www.baidu.com"></iframe> -->
 <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1259441963'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1259441963' type='text/javascript'%3E%3C/script%3E"));</script>
 </body>
