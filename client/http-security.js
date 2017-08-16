@@ -40,6 +40,7 @@
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
         scanInlineElement = true, //是否需要扫描内联事件
+        whitelistUrl = 'http://localhost:3000/api/whitelist',
         reportUrl = 'http://localhost:3000/api/report';
 
     // 安全域，白名单
@@ -500,12 +501,27 @@
     }
 
     function __init() {
-        rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
-        rulemap["inlineEvent"]&&scanInlineElement && inlineEventFilter(rulemap["inlineEvent"][1]);
-        rulemap["staticScript"]&&interceptionStaticScript(rulemap["staticScript"][1]);
-        rulemap["lockCallAndApply"]&&lockCallAndApply(rulemap["lockCallAndApply"][1]);
-        rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
-        rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
+        function initRules() {
+            rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
+            rulemap["inlineEvent"]&&scanInlineElement && inlineEventFilter(rulemap["inlineEvent"][1]);
+            rulemap["staticScript"]&&interceptionStaticScript(rulemap["staticScript"][1]);
+            rulemap["lockCallAndApply"]&&lockCallAndApply(rulemap["lockCallAndApply"][1]);
+            rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
+            rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
+        }
+        if(whitelistUrl) {
+            axios.get(whitelistUrl)
+                .then(function(response){
+                    console.log(response.data);
+                    var strreg = response.data.join('|');
+                    var reg1 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\\.)+("+strreg+")+(\\.)+[A-Za-z]{2,14}","i");  // *.yy.com
+                    var reg2 = new RegExp("((https|http):\\/\\/)+([a-zA-Z|a-zA-Z\d])+(\\.)+(" + strreg + ")+(\\.)+[A-Za-z]{2,14}","i"); //http开头
+                    var reg3 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\.)+(" + strreg + ")+(:[0-9]{1,4})+(\\.)+[A-Za-z]{2,14}","i"); //帶端口的請求
+                    var reg4 = new RegExp("[a-zA-Z0-9]\\:\\/\\/[a-zA-Z0-9_/]*","i"); //手机相关
+                    safeList = [reg1, reg2, reg3, reg4];
+                    initRules();
+                })
+        }
     }
 
     var defaultCallback = function() {
@@ -539,6 +555,9 @@
             }
             if(options.reportUrl) {
                 reportUrl = options.reportUrl;
+            }
+            if(options.whitelistUrl) {
+                whitelistUrl = options.whitelistUrl;
             }
         }
         __init();
