@@ -75,20 +75,23 @@
     };
     */
 	window.httphijack.init({
-        "staticScript": false,
-        "dynamicScript": function(){
-            console.log("dynamicScript callback");
-		},
-        "inlineEvent": function(){
-            console.log("inlineEvent callback");
-		},
-        "lockCallAndApply":function () {
-			console.log("lockCallAndApply callback");
-        },
-        "iframe": function(){
-            console.log("iframe callback");
-		},
-        "iframeSrc": false
+//        reportUrl: "http://www.baidu.com",
+        rules: {
+            "staticScript": false,
+            "dynamicScript": function(){
+                console.log("dynamicScript callback");
+            },
+            "inlineEvent": function(){
+                console.log("inlineEvent callback");
+            },
+            "lockCallAndApply":function () {
+                console.log("lockCallAndApply callback");
+            },
+            "iframe": function(){
+                console.log("iframe callback");
+            },
+            "iframeSrc": false
+        }
 	});
 
 	// 动态添加可疑脚本文件

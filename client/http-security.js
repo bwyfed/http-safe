@@ -6,20 +6,23 @@
  * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  *
  1、使用方法：调用 httphijack.init({
-        "staticScript": false,
-        "dynamicScript": function(){
-            console.log("dynamicScript callback");
-		},
-        "inlineEvent": function(){
-            console.log("inlineEvent callback");
-		},
-        "lockCallAndApply":function () {
-			console.log("lockCallAndApply callback");
-        },
-        "iframe": function(){
-            console.log("iframe callback");
-		},
-        "iframeSrc": false
+        reportUrl: "http://report.url.com",
+        rules: {
+            "staticScript": false,
+            "dynamicScript": function(){
+                console.log("dynamicScript callback");
+            },
+            "inlineEvent": function(){
+                console.log("inlineEvent callback");
+            },
+            "lockCallAndApply":function () {
+                console.log("lockCallAndApply callback");
+            },
+            "iframe": function(){
+                console.log("iframe callback");
+            },
+            "iframeSrc": false
+        }
 })
  3、防范范围：
  1）所有内联事件执行的代码
@@ -36,7 +39,8 @@
     var httphijack = function() {},
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
-        scanInlineElement = true; //是否需要扫描内联事件
+        scanInlineElement = true, //是否需要扫描内联事件
+        reportUrl = 'http://localhost:3000/api/report';
 
     // 安全域，白名单
     var safeList = [
@@ -111,7 +115,7 @@
      */
     function h5Report(url, className, eName, iframeUrl) {
         var databody = {},
-            queryStr = '';
+            queryStr = '?';
 
         databody.url = url ? url : '';
         databody.classname = className ? className : '';
@@ -126,8 +130,7 @@
                 queryStr += n + '=' + databody[n] + '&';
             }
         }
-
-        (new Image).src = 'http://localhost:3000/api/report?' + queryStr;
+        (new Image).src = reportUrl + queryStr;
     }
     /**
      * 过滤指定关键字
@@ -521,20 +524,21 @@
     // 初始化方法
     httphijack.init = function(options) {
         var type = typeof options;
-        if(!type||(type==="object"&& (length in options))) {
-            //无效入参对象,则直接调用初始化方法.暂时不支持数组方法
-            //__init();
-
-        } else {
-            //遍历由规则和回调构成的对象
-            for(var rule in options) {
-                if(!options[rule]) {
-                    //说明不需要这个rule
-                    delete rulemap[rule];
-                } else if(typeof options[rule]==='function') {
-                    //说明不使用默认的回调方法
-                    rulemap[rule][1] = options[rule];
+        if(type==='object'&& !(length in options)){
+            if(options.rules) {
+                //遍历由规则和回调构成的对象
+                for(var rule in options.rules) {
+                    if(!options.rules[rule]) {
+                        //说明不需要这个rule
+                        delete rulemap[rule];
+                    } else if(typeof options.rules[rule]==='function') {
+                        //说明不使用默认的回调方法
+                        rulemap[rule][1] = options.rules[rule];
+                    }
                 }
+            }
+            if(options.reportUrl) {
+                reportUrl = options.reportUrl;
             }
         }
         __init();
