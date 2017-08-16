@@ -4,7 +4,8 @@
   "description": "web frontend safe function",
   "main": "index.js",
   "scripts": {
-    "serve": "node ./server/server.js"
+    "dev": "node build/dev-server.js",
+    "start": "node build/dev-server.js"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,8 @@
   "homepage": "https://github.com/bwyfed/http-safe#readme",
   "dependencies": {
     "express": "^4.15.4"
+  },
+  "devDependencies": {
+    "opn": "^5.1.0"
   }
 }
