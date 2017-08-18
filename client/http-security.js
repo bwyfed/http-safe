@@ -1,11 +1,12 @@
 /**
  * @author Bianwangyang
- * @name http-safe 1.1.0
+ * @name http-safe 1.0.0
  * @created : 2017-08-15
  * @description 使用Javascript实现前端防御http劫持及防御XSS攻击，并且对可疑攻击进行上报
  * -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  *
  1、使用方法：调用 httphijack.init({
+        whiteList: ['a.com','b.com'],   //白名单入口
         reportUrl: "http://report.url.com",
         rules: {
             "staticScript": false,
@@ -40,8 +41,9 @@
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
         scanInlineElement = true, //是否需要扫描内联事件
-        whitelistUrl = 'http://localhost:3000/api/whitelist',
-        reportUrl = 'http://localhost:3000/api/report';
+        whitelistUrl,   //白名单列表的请求URL  字符串 如'http://localhost:3000/api/whitelist'
+        reportUrl = 'http://localhost:3000/api/report',
+        whiteList;  //安全域 白名单  数组
 
     // 安全域，白名单
     var safeList = [
@@ -500,6 +502,15 @@
         }
     }
 
+    //生成安全域白名单的正则表达式列表
+    function generateWhiteListReg(whitelist) {
+        var strreg = whitelist.join('|'),
+            reg1 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\\.)+("+strreg+")+(\\.)+[A-Za-z]{2,14}","i"),  // *.yy.com
+            reg2 = new RegExp("((https|http):\\/\\/)+([a-zA-Z|a-zA-Z\d])+(\\.)+(" + strreg + ")+(\\.)+[A-Za-z]{2,14}","i"), //http开头
+            reg3 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\.)+(" + strreg + ")+(:[0-9]{1,4})+(\\.)+[A-Za-z]{2,14}","i"), //帶端口的請求
+            reg4 = new RegExp("[a-zA-Z0-9]\\:\\/\\/[a-zA-Z0-9_/]*","i"); //手机相关
+        return [reg1, reg2, reg3, reg4];
+    }
     function __init() {
         function initRules() {
             rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
@@ -513,15 +524,12 @@
             axios.get(whitelistUrl)
                 .then(function(response){
                     console.log(response.data);
-                    var strreg = response.data.join('|');
-                    var reg1 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\\.)+("+strreg+")+(\\.)+[A-Za-z]{2,14}","i");  // *.yy.com
-                    var reg2 = new RegExp("((https|http):\\/\\/)+([a-zA-Z|a-zA-Z\d])+(\\.)+(" + strreg + ")+(\\.)+[A-Za-z]{2,14}","i"); //http开头
-                    var reg3 = new RegExp("([a-zA-Z|a-zA-Z\\d])+(\.)+(" + strreg + ")+(:[0-9]{1,4})+(\\.)+[A-Za-z]{2,14}","i"); //帶端口的請求
-                    var reg4 = new RegExp("[a-zA-Z0-9]\\:\\/\\/[a-zA-Z0-9_/]*","i"); //手机相关
-                    safeList = [reg1, reg2, reg3, reg4];
-                    initRules();
+                    safeList = generateWhiteListReg(response.data);
                 })
+        } else if(whiteList) {
+            safeList = generateWhiteListReg(whiteList);
         }
+        initRules();
     }
 
     var defaultCallback = function() {
@@ -539,11 +547,20 @@
     };
     // 初始化方法
     httphijack.init = function(options) {
-        var type = typeof options;
+        var type = typeof options,rule;
         if(type==='object'&& !(length in options)){
             if(options.rules) {
+                for(rule in rulemap) {
+                    if(options.rules.hasOwnProperty(rule)&& typeof options.rules[rule]==='function') {
+                        //说明不使用默认的回调方法
+                        rulemap[rule][1] = options.rules[rule];
+                    } else if(!options.rules[rule]) {
+                        delete rulemap[rule];
+                    }
+                }
                 //遍历由规则和回调构成的对象
-                for(var rule in options.rules) {
+                /*
+                for(rule in options.rules) {
                     if(!options.rules[rule]) {
                         //说明不需要这个rule
                         delete rulemap[rule];
@@ -552,12 +569,16 @@
                         rulemap[rule][1] = options.rules[rule];
                     }
                 }
+                */
             }
             if(options.reportUrl) {
                 reportUrl = options.reportUrl;
             }
             if(options.whitelistUrl) {
                 whitelistUrl = options.whitelistUrl;
+            }
+            if(options.whiteList&&Array.isArray(options.whiteList)) {
+                whiteList = options.whiteList;
             }
         }
         __init();

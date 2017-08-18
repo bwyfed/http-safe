@@ -78,7 +78,9 @@
     */
 	window.httphijack.init({
 //        reportUrl: "http://www.baidu.com",
+        whiteList: ['a.com','b.com','c.com'],
         rules: {
+            /*
             "staticScript": false,
             "dynamicScript": function(){
                 console.log("dynamicScript callback");
@@ -89,10 +91,11 @@
             "lockCallAndApply":function () {
                 console.log("lockCallAndApply callback");
             },
+            */
             "iframe": function(){
                 console.log("iframe callback");
             },
-            "iframeSrc": false
+            "iframeSrc": true
         }
 	});
 
