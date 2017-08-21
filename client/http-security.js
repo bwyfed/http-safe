@@ -464,12 +464,12 @@
 
         if (self !== top) {
             var parentUrl = document.referrer,
-                length = safeList.length,
+                length = whiteList.length,
                 i = 0;
 
             for (; i < length; i++) {
                 // 建立白名单正则
-                var reg = new RegExp(safeList[i], 'i');
+                var reg = new RegExp(whiteList[i], 'i');
 
                 // 存在白名单中，放行
                 if (reg.test(parentUrl)) {
@@ -479,14 +479,15 @@
 
             var url = location.href;
             var parts = url.split('#');
+            //模拟已经被劫持过了
             if (location.search) {
                 parts[0] += '&' + flag + '=3';
             } else {
                 parts[0] += '?' + flag + '=3';
             }
             try {
+                top.location.href = parts.join('#');
                 if (!s__cookie.get('HtpLocTmp')) {
-                    top.location.href = parts.join('#');
                     // cookie记录这次跳转的时间点
                     s__cookie.set('HtpLocTmp', '1');
                 }
