@@ -4,6 +4,7 @@
 	<title>Http Security Test</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<script type="text/javascript" src='http-security.js'></script>
 	<style type="text/css">
 		html,body {
 			padding: 0;
@@ -16,14 +17,34 @@
 			box-sizing: border-box;
 			display: block;
 		}
+		.btn {
+			margin: 5px 0 5px 5px;
+		}
 	</style>
 </head>
 <body>
 <div class="container">
 	<iframe name="originFrameCtn" src="origin.html" class="origin-frame-ctn"></iframe>
+	<button class="btn" id="btnCreateIframe">创建iframe使用setAttribute添加XSS内容</button>
+	<!--<button class="btn" id="iframeSafe">创建iframe使用setAttribute添加XSS内容</button>-->
 </div>
 
 <script>
+    window.httphijack.init({
+        whiteList: ['baidu.com','b.com','c.com'],
+        rules: {
+            "iframe": true
+        }
+    });
+	var btnCreateIframe = document.querySelector("#btnCreateIframe");
+	btnCreateIframe.addEventListener("click",function(){
+	    var iframe = document.createElement('iframe');
+	    iframe.setAttribute('src','https://www.baidu.com');
+	    iframe.setAttribute('width','100%');
+	    iframe.setAttribute('height','300px');
+//	    document.appendChild(iframe);
+	    document.body.appendChild(iframe);
+	})
 </script>
 </body>
 </html>

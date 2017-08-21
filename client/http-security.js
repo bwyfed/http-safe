@@ -137,7 +137,7 @@
     }
     /**
      * 过滤指定关键字
-     * @param  {[Array]} 过滤词库 
+     * @param  {[Array]} list 过滤词库
      * @param  {[String]} value    [需要验证的字符串]
      * @return {[Boolean]}         [false -- 验证不通过，true -- 验证通过]
      */
@@ -344,10 +344,14 @@
         var overWrite = root.Element.prototype.setAttribute;
 
         root.Element.prototype.setAttribute = function(name, value) {
-            if (this.tagName === 'SCRIPT' && /^src$/i.test(name)) {
-                if (!filter(safeList, value)) {
+            if ((this.tagName === 'SCRIPT'||this.tagName === 'IFRAME')&& /^src$/i.test(name)) {
+                if (!filter(whiteList, value)) {
                     hiidoStat(value, '', '', '');
                     // console.log('拦截可疑模块:', value);
+                    //如果页面被添加了iframe，就应该将其隐藏
+                    if(this.tagName==='IFRAME') {
+                        this.style.display = 'none';
+                    }
                     return;
                 }
             }
@@ -369,20 +373,23 @@
     }
 
     /**
-     * 实现单个 root 窗口的 setAttribute保护
+     * 实现单个 window 窗口的 setAttribute保护
      * @param  {[BOM]} root [浏览器window对象]
      * @return {[type]}       [description]
      */
     function installHook(root) {
-
+        //重写单个window窗口的setAttribute属性
         resetSetAttribute(root);
-        resetDocumentWrite(root);
+        // resetDocumentWrite(root);
 
         // MutationObserver 的不同兼容性写法
         var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         if (!MutationObserver) return;
+        // 该构造函数用来实例化一个新的Mutation观察者对象
+        // Mutation观察者对象能监听在某个范围内的 DOM 树变化
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
+                //返回被添加的节点，或者为null
                 var nodes = mutation.addedNodes;
 
                 for (var i = 0; i < nodes.length; i++) {
