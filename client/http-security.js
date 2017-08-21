@@ -135,6 +135,24 @@
         }
         (new Image).src = reportUrl + queryStr;
     }
+
+    function reportStat(params){
+        var databody = {};
+
+        databody.url = params.url ? params.url : ''; //拦截处理的原始url
+        databody.classname = params.className ? params.className : ''; //拦截插入元素className
+        databody.eventName = params.eventName ? params.eventName : ''; //eName
+        databody.iframeUrl = params.iframeUrl ? params.iframeUrl : ''; //页面加入的iframe的URL
+        databody.topPageUrl = params.topPageUrl?params.topPageUrl:''; //页面被某个iframe嵌入，top的URL
+        // databody.pathname = root.location.pathname;
+        // databody.hostname = root.location.hostname;
+        databody.ua = navigator.userAgent;  //用户浏览器信息
+
+        var request = new XMLHttpRequest();
+        request.open("POST",reportUrl);
+        request.setRequestHeader("Content-Type","application/json");
+        request.send(databody);
+    }
     /**
      * 过滤指定关键字
      * @param  {[Array]} list 过滤词库
@@ -346,11 +364,18 @@
         root.Element.prototype.setAttribute = function(name, value) {
             if ((this.tagName === 'SCRIPT'||this.tagName === 'IFRAME')&& /^src$/i.test(name)) {
                 if (!filter(whiteList, value)) {
-                    hiidoStat(value, '', '', '');
+                    //hiidoStat(value, '', '', '');
                     // console.log('拦截可疑模块:', value);
                     //如果页面被添加了iframe，就应该将其隐藏
                     if(this.tagName==='IFRAME') {
                         this.style.display = 'none';
+                        reportStat({
+                            url: window.location.href,  //原始页面的URL
+                            eventName: 'add iframe into page',   //事件名称
+                            eventId: 10002,         //事件代码
+                            iframeUrl: value,       //新加入iframe的URL
+                            topPageUrl: window.location.href    //顶级页面的URL
+                        });
                     }
                     return;
                 }
@@ -498,10 +523,22 @@
                     // cookie记录这次跳转的时间点
                     s__cookie.set('HtpLocTmp', '1');
                 }
-                hiidoStat('', '', '', parentUrl);
+                reportStat({
+                    url: window.location.href,  //原始页面的URL
+                    eventName: 'page is embbed in iframe',   //事件名称
+                    eventId: 10001,         //事件代码
+                    iframeUrl: '',       //新加入iframe的URL
+                    topPageUrl: parentUrl    //顶级页面的URL
+                });
                 // console.log('页面被嵌入iframe中:', parentUrl);
             } catch (e) {
-                hiidoStat('', '', '', parentUrl);
+                reportStat({
+                    url: window.location.href,  //原始页面的URL
+                    eventName: 'page is embbed in iframe',   //事件名称
+                    eventId: 10001,         //事件代码
+                    iframeUrl: '',       //新加入iframe的URL
+                    topPageUrl: parentUrl    //顶级页面的URL
+                });
                 // console.log('页面被嵌入iframe中, 重定向失败');
             }
             if(callback&&typeof callback==='function') {

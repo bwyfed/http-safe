@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 
 const port = 3000;
-const uri = 'http://localhost:' + port + '/index.html';
+const uri = 'http://localhost:' + port + '/test.html';
 app.use(express.static(path.join(__dirname,'../client')));   //托管静态资源
 // app.use(express.static(path.join(__dirname,'../client/index.html')));
 app.use('/api/whitelist', function(req, res){
@@ -29,7 +29,7 @@ app.use('/api/report', function(req, res) {
     res.end("report success");
 });
 app.use('/',function (req,res) {
-    res.sendFile(path.join(__dirname,'../client/index.html'));
+    res.sendFile(path.join(__dirname,'../client/test.html'));
 });
 app.listen(port);
 
