@@ -384,6 +384,28 @@
         };
     }
 
+    function filterIframes() {
+        var iframes = document.getElementsByTagName('iframe'),iframe,src;
+        for(var i=0; i < iframes.length; i++) {
+            iframe = iframes[i];
+            console.log(iframe.src);
+            src = iframe.src;
+            if(src) {
+                if(!filter(whiteList,src)) {
+                    //如果不在白名单中，那么拦截并上报
+                    iframe.style.display = 'none';
+                    reportStat({
+                        url: window.location.href,  //原始页面的URL
+                        eventName: 'add iframe into page',   //事件名称
+                        eventId: 10002,         //事件代码
+                        iframeUrl: src,       //新加入iframe的URL
+                        topPageUrl: window.location.href    //顶级页面的URL
+                    });
+                }
+            }
+        }
+    }
+
     /**
      * 使用 MutationObserver 对生成的 iframe 页面进行监控，
      * 防止调用内部原生 setAttribute 及 document.write
@@ -405,6 +427,7 @@
     function installHook(root) {
         //重写单个window窗口的setAttribute属性
         resetSetAttribute(root);
+        filterIframes(root);
         // resetDocumentWrite(root);
 
         // MutationObserver 的不同兼容性写法
@@ -643,8 +666,10 @@
     if (navigator.appName == 'Microsoft Internet Explorer' && (navigator.appVersion.split(';')[1].replace(/[ ]/g, '') == 'MSIE6.0' || navigator.appVersion.split(';')[1].replace(/[ ]/g, '') == 'MSIE7.0' || navigator.appVersion.split(';')[1].replace(/[ ]/g, '') == 'MSIE8.0')) {
         return;
     } else {
+        /*
         if (!(/localhost/i).test(location.host) || (navigator.appName === 'Microsoft Internet Explorer' && (navigator.appVersion.match(/7./i) !== '7.' || navigator.appVersion.match(/8./i) !== '8.'))) {
             httphijack.init();
         }
+        */
     }
 }(window))
