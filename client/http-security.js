@@ -151,7 +151,7 @@
         var request = new XMLHttpRequest();
         request.open("POST",reportUrl);
         request.setRequestHeader("Content-Type","application/json");
-        request.send(databody);
+        request.send(JSON.stringify(databody));
     }
     /**
      * 过滤指定关键字
