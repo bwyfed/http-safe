@@ -24,18 +24,20 @@
 </head>
 <body>
 <div class="container">
-	<iframe name="originFrameCtn" src="origin.html" class="origin-frame-ctn"></iframe>
+	<iframe name="originFrameCtn" src="http://localhost:3000/origin.html" class="origin-frame-ctn"></iframe>
 	<button class="btn" id="btnCreateIframe">创建iframe使用setAttribute添加XSS内容</button>
 	<!--<button class="btn" id="iframeSafe">创建iframe使用setAttribute添加XSS内容</button>-->
 </div>
 
 <script>
+	/*
     window.httphijack.init({
         whiteList: ['baidu.com','b.com','c.com'],
         rules: {
             "iframe": true
         }
     });
+    */
 	var btnCreateIframe = document.querySelector("#btnCreateIframe");
 	btnCreateIframe.addEventListener("click",function(){
 	    var iframe = document.createElement('iframe');

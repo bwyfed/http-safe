@@ -15,9 +15,16 @@
 </div>
 <button class="btn" id="btnIframe">原页面被嵌入在iframe，点击重定向</button>
 <script>
-    console.log('window.self'+window.self);
-    console.log('window.top'+window.top);
+    console.log('原始网站信息：');
+    console.log('window.self='+window.self);
+//    console.log('window.parent.location='+window.parent.location);
+//    console.log('window.parent='+window.parent);
+//    console.log('window.top='+window.top);
     console.log('window.self==window.top:'+(window.self==window.top));
+    console.log('document.referrer='+document.referrer);
+//    console.log('top.location='+top.location);
+//    debugger;
+//    top.location = 'http://www.baidu.com';
     var btnIframe = document.querySelector("#btnIframe");
     btnIframe.addEventListener("click",function () {
         window.httphijack.init({

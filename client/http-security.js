@@ -512,10 +512,11 @@
         }
     };
     /**
+     * 此页面存在于一个iframe中
      * 重定向iframe url（页面被iframe包裹）
      */
     function redirectionIframeSrc(callback) {
-        var flag = 'type';
+        var flag = 'iframe_hijack_redirected';
 
         if (self !== top) {
             var parentUrl = document.referrer,
@@ -532,6 +533,7 @@
                 }
             }
 
+            //我们的正常页面
             var url = location.href;
             var parts = url.split('#');
             //模拟已经被劫持过了
@@ -557,7 +559,7 @@
             } catch (e) {
                 reportStat({
                     url: window.location.href,  //原始页面的URL
-                    eventName: 'page is embbed in iframe',   //事件名称
+                    eventName: 'page is embbed in iframe,redirect fail',   //事件名称
                     eventId: 10001,         //事件代码
                     iframeUrl: '',       //新加入iframe的URL
                     topPageUrl: parentUrl    //顶级页面的URL
