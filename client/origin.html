@@ -25,6 +25,14 @@
 //    console.log('top.location='+top.location);
 //    debugger;
 //    top.location = 'http://www.baidu.com';
+    window.httphijack.init({
+        whiteList: ['baidu.com','b.com','c.com'],
+        rules: {
+//            "iframeSrc":true,
+            "iframe": true,
+            "inlineEvent": true
+        }
+    });
     var btnIframe = document.querySelector("#btnIframe");
     btnIframe.addEventListener("click",function () {
         window.httphijack.init({

@@ -583,12 +583,12 @@
     }
     function __init() {
         function initRules() {
+            rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
+            rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
             rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
             rulemap["inlineEvent"]&&scanInlineElement && inlineEventFilter(rulemap["inlineEvent"][1]);
             rulemap["staticScript"]&&interceptionStaticScript(rulemap["staticScript"][1]);
             rulemap["lockCallAndApply"]&&lockCallAndApply(rulemap["lockCallAndApply"][1]);
-            rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
-            rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
         }
         if(whitelistUrl) {
             axios.get(whitelistUrl)
