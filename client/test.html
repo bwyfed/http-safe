@@ -30,11 +30,16 @@
 </div>
 <div class="container">
 	<a href=" javascript: alert('xss') " >此a标签href被注入javascript:恶意代码</a>
+	<a href=" javascript: alert('abc') " >此a标签href被注入javascript:非恶意代码</a>
 </div>
 <div class="container">
 	<button onclick="alert('xss more')" >此button标签被注入onclick内联恶意代码</button>
+	<button onclick="confirm('normal information')" >此button标签被注入onclick内联非恶意代码</button>
 </div>
-<iframe src="javascript:location" width="100%" height="100px"></iframe>
+这个iframe元素被注入可执行代码（非法）
+<iframe src="javascript:window.location='http://www.baidu.com'" width="100%" height="100px"></iframe>
+这个iframe元素被注入可执行代码（合法）
+<iframe src="javascript:confirm('这是iframe的合法脚本')" width="100%" height="100px"></iframe>
 <script>
     window.httphijack.init({
         whiteList: ['baidu.com','b.com','c.com','localhost:3000'],

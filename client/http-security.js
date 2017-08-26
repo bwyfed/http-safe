@@ -57,6 +57,13 @@
     // 危险域，黑名单
     // var dangerList = [];
 
+    // 建立关键词黑名单
+    var keywordBlackList = [
+        'xss',
+        'BAIDU_SSP__wrapper',
+        'BAIDU_DSPUI_FLOWBAR'
+    ];
+
     // 过滤class关键词
     var filterClassName = [
         'BAIDU_DUP_wrapper', //百度推广
@@ -191,20 +198,33 @@
             scanHTMLElement(ele);
         }
     }
+    // 过滤内联事件和内联脚本 普通元素过滤on开头的事件，使用inlineEventList过滤
+    // 另有，a标签过滤href="javascript:..."后面的黑名单关键词keywordBlackList
+    // iframe标签过滤src="javascript:..."后面的内联事件黑名单inlineEventList
     function scanHTMLElement(node) {
         var attrs = node.attributes,attr,attrName,attrValue;
         console.log(node.nodeName);
-        function filterValue(attrValue) {
+        function filterValue(tagName,attrValue) {
             if(attrValue.length===2) {
                 attrValue = attrValue[1];
             } else {
                 attrValue = '';
             }
-            if (filter(inlineEventList, attrValue)) {
-                // 注销代码
-                // elem.href = 'javascript:void(0)';
-                console.log('拦截可疑事件:' + attrValue);
+            if(tagName==='A') {
+                //a标签的内联脚本，过滤关键词黑名单keywordBlackList
+                if (filter(keywordBlackList, attrValue)) {
+                    // 注销代码
+                    node.href = 'javascript:void(0)';
+                    console.log('拦截A的内联可疑脚本:' + attrValue);
+                }
+            } else if(tagName==='IFRAME') {
+                if (filter(inlineEventList, attrValue)) {
+                    // 注销代码
+                    node.src = 'javascript:void(0)';
+                    console.log('拦截IFRAME可疑事件:' + attrValue);
+                }
             }
+
         }
         for(var i in attrs) {
             if(attrs.hasOwnProperty(i)) {
@@ -213,9 +233,9 @@
                 attrValue = attr["value"];
                 //扫描包括 a iframe img video div 等所有可以写内联事件的元素
                 if (attrName.indexOf('on')===0) {
-                    if (filter(inlineEventList, attrValue)) {
+                    if (filter(inlineEventList, attrValue)) {//这里还可以过滤keywordBlackList
                         // 注销事件
-                        // node[attrName] = null;
+                        node[attrName] = null;
                         console.log('拦截可疑内联事件:' + attrValue);
                     }
                 }
@@ -226,11 +246,11 @@
                     if(node.tagName === 'A'&&attrName==='href'&&node.protocol === 'javascript:') {
                         //A标签
                         attrValue = node.href.match(r);
-                        filterValue(attrValue);
+                        filterValue(node.tagName, attrValue);
                     } else if(node.tagName ==='IFRAME'&&attrName==='src'&&node.src.indexOf('javascript:')!==-1) {
                         //iframe标签
                         attrValue = node.src.match(r);
-                        filterValue(attrValue);
+                        filterValue(node.tagName, attrValue);
                     }
                 }
             }
