@@ -220,14 +220,14 @@
                     }
                 }
 
-                // 扫描 <a href="javascript:"> 的脚本
+                // 扫描 <a href="javascript:"> 的脚本 <iframe src="javascript:alert(1)">的脚本
                 if (node.tagName === 'A'||node.tagName ==='IFRAME') {
                     var r = new RegExp('javascript:(.*)');
-                    if(node.tagName === 'A'&& node.protocol === 'javascript:') {
+                    if(node.tagName === 'A'&&attrName==='href'&&node.protocol === 'javascript:') {
                         //A标签
                         attrValue = node.href.match(r);
                         filterValue(attrValue);
-                    } else if(node.tagName ==='IFRAME'&&node.src.indexOf('javascript:')!==-1) {
+                    } else if(node.tagName ==='IFRAME'&&attrName==='src'&&node.src.indexOf('javascript:')!==-1) {
                         //iframe标签
                         attrValue = node.src.match(r);
                         filterValue(attrValue);
