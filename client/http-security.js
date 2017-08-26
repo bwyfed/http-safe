@@ -183,11 +183,65 @@
         return false;
     }
 
+    //内联事件和内联脚本劫持
+    function inlineEventScriptFilter(callback) {
+        var allNodes = document.all,ele;
+        for(var i=0; i<allNodes.length; i++) {
+            ele = allNodes[i];
+            scanHTMLElement(ele);
+        }
+    }
+    function scanHTMLElement(node) {
+        var attrs = node.attributes,attr,attrName,attrValue;
+        console.log(node.nodeName);
+        function filterValue(attrValue) {
+            if(attrValue.length===2) {
+                attrValue = attrValue[1];
+            } else {
+                attrValue = '';
+            }
+            if (filter(inlineEventList, attrValue)) {
+                // 注销代码
+                // elem.href = 'javascript:void(0)';
+                console.log('拦截可疑事件:' + attrValue);
+            }
+        }
+        for(var i in attrs) {
+            if(attrs.hasOwnProperty(i)) {
+                attr = attrs[i];
+                attrName = attr["name"];
+                attrValue = attr["value"];
+                //扫描包括 a iframe img video div 等所有可以写内联事件的元素
+                if (attrName.indexOf('on')===0) {
+                    if (filter(inlineEventList, attrValue)) {
+                        // 注销事件
+                        // node[attrName] = null;
+                        console.log('拦截可疑内联事件:' + attrValue);
+                    }
+                }
+
+                // 扫描 <a href="javascript:"> 的脚本
+                if (node.tagName === 'A'||node.tagName ==='IFRAME') {
+                    var r = new RegExp('javascript:(.*)');
+                    if(node.tagName === 'A'&& node.protocol === 'javascript:') {
+                        //A标签
+                        attrValue = node.href.match(r);
+                        filterValue(attrValue);
+                    } else if(node.tagName ==='IFRAME'&&node.src.indexOf('javascript:')!==-1) {
+                        //iframe标签
+                        attrValue = node.src.match(r);
+                        filterValue(attrValue);
+                    }
+                }
+            }
+        }
+    }
     // 内联事件劫持
     function inlineEventFilter(callback) {
         var i = 0,
             obj = null;
 
+        //遍历文档根节点上的所有内联事件（以on开头）
         for (obj in document) {
             if (/^on./.test(obj)) {
                 interceptionInlineEvent(obj, i++);
@@ -586,7 +640,7 @@
             rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
             rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
             rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
-            rulemap["inlineEvent"]&&scanInlineElement && inlineEventFilter(rulemap["inlineEvent"][1]);
+            rulemap["inlineEvent"]&&scanInlineElement && inlineEventScriptFilter(rulemap["inlineEvent"][1]);
             rulemap["staticScript"]&&interceptionStaticScript(rulemap["staticScript"][1]);
             rulemap["lockCallAndApply"]&&lockCallAndApply(rulemap["lockCallAndApply"][1]);
         }
@@ -610,7 +664,7 @@
     var rulemap = {
         "staticScript": [interceptionStaticScript,defaultCallback],
         "dynamicScript": [interceptionDynamicScript,defaultCallback],
-        "inlineEvent": [inlineEventFilter,defaultCallback],
+        "inlineEvent": [inlineEventScriptFilter,defaultCallback],
         "lockCallAndApply": [lockCallAndApply,defaultCallback],
         "iframe": [defenseIframe,defaultCallback],
         "iframeSrc": [redirectionIframeSrc,defaultCallback]
