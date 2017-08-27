@@ -39,15 +39,39 @@
 这个iframe元素被注入可执行代码（非法）
 <iframe src="javascript:window.location='http://www.baidu.com'" width="100%" height="100px"></iframe>
 这个iframe元素被注入可执行代码（合法）
-<iframe src="javascript:confirm('这是iframe的合法脚本')" width="100%" height="100px"></iframe>
+<iframe src="javascript:console.log('这是iframe的合法脚本')" width="100%" height="100px"></iframe>
 <script type="text/javascript" src="./xss/b.js"></script>
+<div class="group cf">
+	<div id='btn-append-xss-js' class="btn">动态添加可疑脚本文件</div>
+	<div id='btn-append-normal-js' class="btn">动态添加正常脚本文件</div>
+</div>
 <script>
     window.httphijack.init({
         whiteList: ['baidu.com','b.com','c.com','localhost:3000'],
         rules: {
 			"inlineEvent": true,
-			"staticScript": true
+			"staticScript": true,
+            "dynamicScript": true
         }
+    });
+
+    // 动态添加可疑脚本文件
+    document.getElementById('btn-append-xss-js').addEventListener('click', function(){
+        var script = document.createElement('script');
+        script.id = 'badscript';
+        script.type = 'text/javascript';
+        script.src = './xss/b.js';
+
+        document.getElementsByTagName('body')[0].appendChild(script);
+    });
+
+    // 动态添加正常脚本文件
+    document.getElementById('btn-append-normal-js').addEventListener('click', function(){
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'http://localhost:3000/normal/normal.js';
+
+        document.getElementsByTagName('body')[0].appendChild(script);
     });
 
 	var btnCreateIframe = document.querySelector("#btnCreateIframe");

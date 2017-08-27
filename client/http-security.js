@@ -198,7 +198,7 @@
     // iframe标签过滤src="javascript:..."后面的内联事件黑名单inlineEventList
     function scanHTMLElement(node) {
         var attrs = node.attributes,attr,attrName,attrValue;
-        console.log(node.nodeName);
+        // console.log(node.nodeName);
         function filterValue(tagName,attrValue) {
             if(attrValue.length===2) {
                 attrValue = attrValue[1];
@@ -342,7 +342,7 @@
      */
     function scanStaticScript() {
         var staticScripts = document.getElementsByTagName("script"),script;
-        console.log('scan static script=====');
+        console.log('scan static script=====start');
         for(var i=0; i < staticScripts.length; i++) {
             script = staticScripts[i];
             console.log(script.src);
@@ -352,19 +352,18 @@
                 // hiidoStat(node.src, 'insertScriptTag', '', '');
             }
         }
-        console.log('scan static script=====');
+        console.log('scan static script=====end');
     }
+
     /**
-     * 主动防御 MutationEvent
-     * 使用 MutationObserver 进行静态插入脚本的拦截
-     * @return {[type]} [description]
+     * 监听DOM树的变化，对非法脚本进行拦截
      */
-    function interceptionStaticScript(callback) {
-        scanStaticScript();
+    function monitorScripts() {
         var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
         var observer = new MutationObserver(function(mutations) {
+            console.log('MutationObserver event');
             mutations.forEach(function(mutation) {
                 var nodes = mutation.addedNodes;
                 // 逐个遍历
@@ -374,13 +373,13 @@
                     if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
                         // 拦截到可疑iframe
                         if (node.tagName === 'IFRAME' && node.src && !filter(whiteList, node.src)) {
-                            node.parentNode && node.parentNode.removeChild(node);
+                            // node.parentNode && node.parentNode.removeChild(node);
                             // hiidoStat('', 'insertIFRMAETag', '', node.src);
                             console.log('拦截到可疑iframe', node.src);
                         } else if (node.src) {
                             // 只放行白名单
                             if (!filter(whiteList, node.src)) {
-                                node.parentNode && node.parentNode.removeChild(node);
+                                // node.parentNode && node.parentNode.removeChild(node);
                                 // hiidoStat(node.src, 'insertScriptTag', '', '');
                                 console.log('拦截可疑静态脚本:', node.src);
                             }
@@ -388,9 +387,6 @@
                     }
                 }
             });
-            if(callback&&typeof callback==='function') {
-                callback();
-            }
         });
 
         // 传入目标节点和观察选项
@@ -401,6 +397,16 @@
             childList: true
         });
     }
+    /**
+     * 主动防御 MutationEvent
+     * 使用 MutationObserver 进行静态插入脚本的拦截
+     * @return {[type]} [description]
+     */
+    function interceptionStaticScript(callback) {
+        //监控当前页面已存在的静态脚本
+        scanStaticScript();
+        // monitorScripts();
+    }
 
     /**
      * 使用 DOMNodeInserted  进行动态脚本拦截监
@@ -409,12 +415,14 @@
      */
     function interceptionDynamicScript(callback) {
         document.addEventListener('DOMNodeInserted', function(e) {
+            console.log(e.type);
             var node = e.target;
 
-            if (!filter(safeList, node.src) || filter(filterClassName, node.className) || filter(filterProName, node.name) || filter(filterNodeId, node.id)) {
-                node.parentNode.removeChild(node);
-                hiidoStat(node.src ? node.src : '', node.className ? node.className : '', node.name ? node.name : '', '');
-                // console.log('拦截可以创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
+            // if (!filter(whiteList, node.src) || filter(filterClassName, node.className) || filter(filterProName, node.name) || filter(filterNodeId, node.id)) {
+            if (!filter(whiteList, node.src)) {
+                // node.parentNode.removeChild(node);
+                // hiidoStat(node.src ? node.src : '', node.className ? node.className : '', node.name ? node.name : '', '');
+                console.log('拦截可以创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
             }
             if(callback&&typeof callback==='function') {
                 callback();
@@ -690,7 +698,7 @@
     }
 
     var defaultCallback = function() {
-        console.log('默认的处理规则的回调函数');
+        // console.log('默认的处理规则的回调函数');
         //上报事件
 
     };
