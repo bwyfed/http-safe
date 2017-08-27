@@ -167,14 +167,9 @@
      * @return {[Boolean]}         [false -- 验证不通过，true -- 验证通过]
      */
     function filter(list, value) {
-        if (list === safeList) {
-            if (typeof(value) === 'undefined' || value === '') {
-                return true;
-            }
-        } else {
-            if (typeof(value) === 'undefined' || value === '') {
-                return false;
-            }
+        //如果要验证的子串为空，或者含有脚本文件名本身
+        if(!value||value.indexOf('http-security.js')!==-1) {
+            return true;
         }
         var length = list.length,
             i = 0;
@@ -342,11 +337,30 @@
     }
 
     /**
+     * 扫描页面中已经存在的script脚本，脚本已执行
+     * 没法拦截，只能上报
+     */
+    function scanStaticScript() {
+        var staticScripts = document.getElementsByTagName("script"),script;
+        console.log('scan static script=====');
+        for(var i=0; i < staticScripts.length; i++) {
+            script = staticScripts[i];
+            console.log(script.src);
+            if (!filter(whiteList, script.src)) {
+                script.parentNode && script.parentNode.removeChild(script);
+                console.log('发现可疑静态脚本:', script.src);
+                // hiidoStat(node.src, 'insertScriptTag', '', '');
+            }
+        }
+        console.log('scan static script=====');
+    }
+    /**
      * 主动防御 MutationEvent
      * 使用 MutationObserver 进行静态插入脚本的拦截
      * @return {[type]} [description]
      */
     function interceptionStaticScript(callback) {
+        scanStaticScript();
         var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
@@ -359,17 +373,16 @@
                     // 扫描 script 与 iframe
                     if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
                         // 拦截到可疑iframe
-                        if (node.tagName === 'IFRAME' && node.src && !filter(safeList, node.src)) {
+                        if (node.tagName === 'IFRAME' && node.src && !filter(whiteList, node.src)) {
                             node.parentNode && node.parentNode.removeChild(node);
-                            hiidoStat('', 'insertIFRMAETag', '', node.src);
-                            // console.log('拦截到可疑iframe', node.src);
-
+                            // hiidoStat('', 'insertIFRMAETag', '', node.src);
+                            console.log('拦截到可疑iframe', node.src);
                         } else if (node.src) {
                             // 只放行白名单
-                            if (!filter(safeList, node.src)) {
+                            if (!filter(whiteList, node.src)) {
                                 node.parentNode && node.parentNode.removeChild(node);
-                                hiidoStat(node.src, 'insertScriptTag', '', '');
-                                // console.log('拦截可疑静态脚本:', node.src);
+                                // hiidoStat(node.src, 'insertScriptTag', '', '');
+                                console.log('拦截可疑静态脚本:', node.src);
                             }
                         }
                     }

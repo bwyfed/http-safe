@@ -40,11 +40,13 @@
 <iframe src="javascript:window.location='http://www.baidu.com'" width="100%" height="100px"></iframe>
 这个iframe元素被注入可执行代码（合法）
 <iframe src="javascript:confirm('这是iframe的合法脚本')" width="100%" height="100px"></iframe>
+<script type="text/javascript" src="./xss/b.js"></script>
 <script>
     window.httphijack.init({
         whiteList: ['baidu.com','b.com','c.com','localhost:3000'],
         rules: {
-			"inlineEvent": true
+			"inlineEvent": true,
+			"staticScript": true
         }
     });
 
@@ -58,5 +60,6 @@
 	    document.body.appendChild(iframe);
 	})
 </script>
+<script type="text/javascript" src="./xss/a.js"></script>
 </body>
 </html>
