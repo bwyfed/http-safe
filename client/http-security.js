@@ -541,7 +541,8 @@
             if(src) {
                 if(!filter(whiteList,src)) {
                     //如果不在白名单中，那么拦截并上报
-                    iframe.style.display = 'none';
+                    // iframe.style.display = 'none';
+                    iframe.parentNode && iframe.parentNode.removeChild(iframe);
                     reportStat({
                         url: window.location.href,  //原始页面的URL
                         eventName: 'add iframe into page',   //事件名称
@@ -733,9 +734,9 @@
         function initRules() {
             rulemap["iframeSrc"]&&redirectionIframeSrc(rulemap["iframeSrc"][1]);
             rulemap["iframe"]&&defenseIframe(rulemap["iframe"][1]);
-            rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
             rulemap["inlineEvent"]&&scanInlineElement && inlineEventScriptFilter(rulemap["inlineEvent"][1]);
             rulemap["staticScript"]&&interceptionStaticScript(rulemap["staticScript"][1]);
+            rulemap["dynamicScript"]&&interceptionDynamicScript(rulemap["dynamicScript"][1]);
             rulemap["lockCallAndApply"]&&lockCallAndApply(rulemap["lockCallAndApply"][1]);
         }
         if(whitelistUrl) {
