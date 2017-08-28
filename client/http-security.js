@@ -43,7 +43,8 @@
         scanInlineElement = true, //是否需要扫描内联事件
         whitelistUrl,   //白名单列表的请求URL  字符串 如'http://localhost:3000/api/whitelist'
         reportUrl = 'http://localhost:3000/api/report',
-        whiteList;  //安全域 白名单  数组
+        whiteList,  //安全域 白名单  数组
+        observer;
 
     // 安全域，白名单
     var safeList = [
@@ -362,7 +363,7 @@
         var MutationObserver = root.MutationObserver || root.WebKitMutationObserver || root.MozMutationObserver;
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
-        var observer = new MutationObserver(function(mutations) {
+        observer = new MutationObserver(function(mutations) {
             console.log('MutationObserver event***********begin');
             mutations.forEach(function(mutation) {
                 var nodes = mutation.addedNodes;
@@ -416,20 +417,25 @@
      * @return {[type]} [description]
      */
     function interceptionDynamicScript(callback) {
+        console.log("进入异步的动态脚本监控阶段======");
+        //在文档内容稳定并可以操作时，进入异步阶段，这是要删除观察者功能
+        window.onload = function() {
+            observer&&observer.disconnect();
+        };
         document.addEventListener('DOMNodeInserted', function(e) {
             console.log(e.type);
             var node = e.target;
 
             // if (!filter(whiteList, node.src) || filter(filterClassName, node.className) || filter(filterProName, node.name) || filter(filterNodeId, node.id)) {
             if (!filter(whiteList, node.src)) {
-                // node.parentNode.removeChild(node);
+                node.parentNode.removeChild(node);
                 // hiidoStat(node.src ? node.src : '', node.className ? node.className : '', node.name ? node.name : '', '');
-                console.log('拦截可以创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
-            }
-            if(callback&&typeof callback==='function') {
-                callback();
+                console.log('拦截动态创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
             }
         }, true);
+        if(callback&&typeof callback==='function') {
+            callback();
+        }
     }
 
     /**

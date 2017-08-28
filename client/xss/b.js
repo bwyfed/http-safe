@@ -1,1 +1,1 @@
-console.log('xss hijack 2');
+console.log('b.js--xss hijack 2');
