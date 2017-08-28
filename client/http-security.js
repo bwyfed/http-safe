@@ -147,11 +147,14 @@
     function reportStat(params){
         var databody = {};
 
+        /*
         databody.url = params.url ? params.url : ''; //拦截处理的原始url
         databody.classname = params.className ? params.className : ''; //拦截插入元素className
         databody.eventName = params.eventName ? params.eventName : ''; //eName
-        databody.iframeUrl = params.iframeUrl ? params.iframeUrl : ''; //页面加入的iframe的URL
-        databody.topPageUrl = params.topPageUrl?params.topPageUrl:''; //页面被某个iframe嵌入，top的URL
+        params.iframeUrl ? (databody.iframeUrl=params.iframeUrl) : delete databody.iframeUrl; //页面加入的iframe的URL
+        params.topPageUrl? (databody.topPageUrl=params.topPageUrl): delete databody.topPageUrl; //页面被某个iframe嵌入，top的URL
+        */
+        databody = params;
         // databody.pathname = root.location.pathname;
         // databody.hostname = root.location.hostname;
         databody.ua = navigator.userAgent;  //用户浏览器信息
@@ -212,12 +215,26 @@
                     // 注销代码
                     node.href = 'javascript:void(0)';
                     console.log('拦截A的内联可疑脚本:' + attrValue);
+                    reportStat({
+                        url: window.location.href,  //原始页面的URL
+                        eventName: 'interception inline script--anchor tag',   //事件名称
+                        eventId: 10004,         //事件代码
+                        tagName: node.tagName,    //节点名字
+                        attrValue: attrValue       //被拦截的脚本
+                    });
                 }
             } else if(tagName==='IFRAME') {
                 if (filter(inlineEventList, attrValue)) {
                     // 注销代码
                     node.src = 'javascript:void(0)';
                     console.log('拦截IFRAME可疑事件:' + attrValue);
+                    reportStat({
+                        url: window.location.href,  //原始页面的URL
+                        eventName: 'interception inline script--iframe tag',   //事件名称
+                        eventId: 10004,         //事件代码
+                        tagName: node.tagName,    //节点名字
+                        attrValue: attrValue       //被拦截的脚本
+                    });
                 }
             }
 
@@ -233,6 +250,13 @@
                         // 注销事件
                         node[attrName] = null;
                         console.log('拦截可疑内联事件:' + attrValue);
+                        reportStat({
+                            url: window.location.href,  //原始页面的URL
+                            eventName: 'interception inline event',   //事件名称
+                            eventId: 10003,         //事件代码
+                            tagName: node.tagName,    //节点名称
+                            onName: attrName       //被拦截的事件属性名字
+                        });
                     }
                 }
 
@@ -348,8 +372,15 @@
             script = staticScripts[i];
             console.log(script.src);
             if (!filter(whiteList, script.src)) {
-                script.parentNode && script.parentNode.removeChild(script);
                 console.log('发现可疑静态脚本:', script.src);
+                reportStat({
+                    url: window.location.href,  //原始页面的URL
+                    eventName: 'monitor static script',   //事件名称
+                    eventId: 10005,         //事件代码
+                    tagName: script.tagName,    //节点名字
+                    attrValue: script.src       //被拦截的脚本
+                });
+                script.parentNode && script.parentNode.removeChild(script);
                 // hiidoStat(node.src, 'insertScriptTag', '', '');
             }
         }
@@ -381,6 +412,13 @@
                         } else if (node.src) {
                             // 只放行白名单
                             if (!filter(whiteList, node.src)) {
+                                reportStat({
+                                    url: window.location.href,  //原始页面的URL
+                                    eventName: 'interception static script',   //事件名称
+                                    eventId: 10005,         //事件代码
+                                    tagName: node.tagName,    //节点名字
+                                    attrValue: node.src       //被拦截的脚本
+                                });
                                 node.parentNode && node.parentNode.removeChild(node);
                                 // hiidoStat(node.src, 'insertScriptTag', '', '');
                                 console.log('拦截可疑静态脚本:', node.src);
@@ -428,9 +466,16 @@
 
             // if (!filter(whiteList, node.src) || filter(filterClassName, node.className) || filter(filterProName, node.name) || filter(filterNodeId, node.id)) {
             if (!filter(whiteList, node.src)) {
+                console.log('监控到动态创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
+                reportStat({
+                    url: window.location.href,  //原始页面的URL
+                    eventName: 'monitor dynamic script',   //事件名称
+                    eventId: 10006,         //事件代码
+                    tagName: node.tagName,    //节点名字
+                    attrValue: node.src       //被拦截的脚本
+                });
                 node.parentNode.removeChild(node);
                 // hiidoStat(node.src ? node.src : '', node.className ? node.className : '', node.name ? node.name : '', '');
-                console.log('拦截动态创建节点：'+ node.nodeName + ',id为：'+(node.id?node.id:''));
             }
         }, true);
         if(callback&&typeof callback==='function') {

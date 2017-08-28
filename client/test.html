@@ -41,15 +41,17 @@
 <span>这个iframe元素被注入可执行代码（合法）</span>
 <iframe src="javascript:console.log('这是iframe的合法脚本')" width="100%" height="100px"></iframe>
 <span>下面引入一个静态可疑脚本，打印"xss hijack 2"后被删除</span>
-<!--<script type="text/javascript" src="./xss/b.js"></script>-->
+<script type="text/javascript" src="./xss/b.js"></script>
 <div class="group cf">
 	<div id='btn-append-xss-js' class="btn">动态添加可疑脚本文件</div>
 	<div id='btn-append-normal-js' class="btn">动态添加正常脚本文件</div>
 </div>
 <script>
     window.httphijack.init({
-        whiteList: ['baidu.com','b.com','c.com','localhost:3000'],
+        whiteList: ['baidu.com','b.com','c.com'],
         rules: {
+            "iframe": true,
+            "iframeSrc": true,
 			"inlineEvent": true,
 			"staticScript": true,
             "dynamicScript": true
