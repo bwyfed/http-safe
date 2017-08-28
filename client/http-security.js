@@ -363,23 +363,24 @@
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
         var observer = new MutationObserver(function(mutations) {
-            console.log('MutationObserver event');
+            console.log('MutationObserver event***********begin');
             mutations.forEach(function(mutation) {
                 var nodes = mutation.addedNodes;
                 // 逐个遍历
                 for (var i = 0; i < nodes.length; i++) {
                     var node = nodes[i];
+                    console.log(node.tagName);
                     // 扫描 script 与 iframe
                     if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
                         // 拦截到可疑iframe
                         if (node.tagName === 'IFRAME' && node.src && !filter(whiteList, node.src)) {
-                            // node.parentNode && node.parentNode.removeChild(node);
+                            node.parentNode && node.parentNode.removeChild(node);
                             // hiidoStat('', 'insertIFRMAETag', '', node.src);
                             console.log('拦截到可疑iframe', node.src);
                         } else if (node.src) {
                             // 只放行白名单
                             if (!filter(whiteList, node.src)) {
-                                // node.parentNode && node.parentNode.removeChild(node);
+                                node.parentNode && node.parentNode.removeChild(node);
                                 // hiidoStat(node.src, 'insertScriptTag', '', '');
                                 console.log('拦截可疑静态脚本:', node.src);
                             }
@@ -387,6 +388,7 @@
                     }
                 }
             });
+            console.log('MutationObserver event***********end');
         });
 
         // 传入目标节点和观察选项
@@ -405,7 +407,7 @@
     function interceptionStaticScript(callback) {
         //监控当前页面已存在的静态脚本
         scanStaticScript();
-        // monitorScripts();
+        monitorScripts();
     }
 
     /**
