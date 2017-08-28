@@ -447,6 +447,9 @@
         //监控当前页面已存在的静态脚本
         scanStaticScript();
         monitorScripts();
+        if(callback&&typeof callback==='function') {
+            callback();
+        }
     }
 
     /**

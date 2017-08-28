@@ -28,6 +28,7 @@ app.use('/api/report', function(req, res) {
     console.log(req);
     res.setHeader('x-abc','xyz');
     res.setHeader('Access-Control-Allow-Origin','*');
+    res.setHeader('Access-Control-Allow-Headers','GET,POST');
     res.end("report success");
 });
 app.use('/',function (req,res) {
