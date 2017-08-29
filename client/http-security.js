@@ -36,7 +36,7 @@
  */
 'use strict';
 (function(root) {
-
+    console.log=function(){};
     var httphijack = function() {},
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
@@ -799,8 +799,11 @@
             if(options.whitelistUrl) {
                 whitelistUrl = options.whitelistUrl;
             }
-            if(options.whiteList&&Array.isArray(options.whiteList)) {
+            if(options.whiteList&&Array.isArray(options.whiteList)&&options.whiteList.length) {
                 whiteList = options.whiteList;
+            }else {
+                //如果参数中没有传白名单，则不做防劫持
+                return;
             }
         }
         __init();
