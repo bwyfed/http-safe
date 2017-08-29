@@ -395,13 +395,13 @@
         // 该构造函数用来实例化一个新的 Mutation 观察者对象 Mutation 观察者对象能监听在某个范围内的 DOM 树变化
         if (!MutationObserver) return;
         observer = new MutationObserver(function(mutations) {
-            console.log('MutationObserver event***********begin');
+            // console.log('MutationObserver event***********begin');
             mutations.forEach(function(mutation) {
                 var nodes = mutation.addedNodes;
                 // 逐个遍历
                 for (var i = 0; i < nodes.length; i++) {
                     var node = nodes[i];
-                    console.log(node.tagName);
+                    // console.log(node.tagName);
                     // 扫描 script 与 iframe
                     if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
                         // 拦截到可疑iframe
@@ -427,7 +427,7 @@
                     }
                 }
             });
-            console.log('MutationObserver event***********end');
+            // console.log('MutationObserver event***********end');
         });
 
         // 传入目标节点和观察选项
@@ -464,7 +464,7 @@
             observer&&observer.disconnect();
         };
         document.addEventListener('DOMNodeInserted', function(e) {
-            console.log(e.type);
+            // console.log(e.type);
             var node = e.target;
 
             // if (!filter(whiteList, node.src) || filter(filterClassName, node.className) || filter(filterProName, node.name) || filter(filterNodeId, node.id)) {
