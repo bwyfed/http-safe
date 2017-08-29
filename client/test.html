@@ -4,7 +4,7 @@
 	<title>Http Security Test</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<script type="text/javascript" src='http-security.js'></script>
+	<script type="text/javascript" src='http-security.min.js'></script>
 	<style type="text/css">
 		html,body {
 			padding: 0;
@@ -63,7 +63,8 @@
         var script = document.createElement('script');
         script.id = 'badscript';
         script.type = 'text/javascript';
-        script.src = './xss/b.js';
+//        script.src = './xss/b.js';
+        script.src = 'http://pingjs.qq.com/ping.js';
 
         document.getElementsByTagName('body')[0].appendChild(script);
     });

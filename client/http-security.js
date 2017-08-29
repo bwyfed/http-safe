@@ -36,7 +36,7 @@
  */
 'use strict';
 (function(root) {
-    console.log=function(){};
+    // console.log=function(){};
     var httphijack = function() {},
         inlineEventMap = {}, //内联事件扫描记录
         inlineEventId = 0, //内联事件扫描ID
