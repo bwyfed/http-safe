@@ -460,9 +460,15 @@
     function interceptionDynamicScript(callback) {
         console.log("进入异步的动态脚本监控阶段======");
         //在文档内容稳定并可以操作时，进入异步阶段，这是要删除观察者功能
-        window.onload = function() {
-            observer&&observer.disconnect();
-        };
+        if(typeof Zepto==='function'||typeof jQuery==='function') {
+            $(function () {
+                observer&&observer.disconnect();
+            });
+        } else if(window.onload===null) {
+            window.onload = function() {
+                observer&&observer.disconnect();
+            };
+        }
         document.addEventListener('DOMNodeInserted', function(e) {
             // console.log(e.type);
             var node = e.target;
