@@ -675,11 +675,38 @@
      */
     function redirectionIframeSrc(callback) {
         var flag = 'iframe_hijack_redirected';
+        //我们的正常页面
+        var url = location.href;
+        var parts = url.split('#');
+        //模拟已经被劫持过了
+        if (location.search) {
+            parts[0] += '&' + flag + '=3';
+        } else {
+            parts[0] += '?' + flag + '=3';
+        }
 
         if (self !== top) {
             var parentUrl = document.referrer,
                 length = whiteList.length,
                 i = 0;
+            var r = /(http|https)?:\/\/([^\.:\/]*[\.\w]*)/;
+            var arr = parentUrl.match(r);
+            if(arr.length===3) {
+                var parenthost = arr[2];
+                if(parenthost===window.location.hostname) {
+                    //如果父窗口的主机名和当前页面的主机名一致，不可能能是自己嵌套自己
+                    //此时被认为是被劫持了,重定向到自己的页面
+                    top.location.href = parts.join('#');
+                    reportStat({
+                        url: window.location.href,  //原始页面的URL
+                        eventName: 'page is embbed in iframe',   //事件名称
+                        eventId: 10001,         //事件代码
+                        iframeUrl: '',       //新加入iframe的URL
+                        topPageUrl: parentUrl    //顶级页面的URL
+                    });
+                    return;
+                }
+            }
 
             for (; i < length; i++) {
                 // 建立白名单正则
@@ -691,15 +718,7 @@
                 }
             }
 
-            //我们的正常页面
-            var url = location.href;
-            var parts = url.split('#');
-            //模拟已经被劫持过了
-            if (location.search) {
-                parts[0] += '&' + flag + '=3';
-            } else {
-                parts[0] += '?' + flag + '=3';
-            }
+
             try {
                 top.location.href = parts.join('#');
                 if (!s__cookie.get('HtpLocTmp')) {

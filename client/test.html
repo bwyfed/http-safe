@@ -26,7 +26,7 @@
 </head>
 <body>
 <div class="container">
-	<iframe name="originFrameCtn" src="http://localhost:3000/origin.html" class="origin-frame-ctn"></iframe>
+	<iframe name="originFrameCtn" src="http://localhost:3000/origin.html?a=b&c=d" class="origin-frame-ctn"></iframe>
 	<button class="btn" id="btnCreateIframe">创建iframe使用setAttribute添加XSS内容</button>
 	<!--<button class="btn" id="iframeSafe">创建iframe使用setAttribute添加XSS内容</button>-->
 </div>
@@ -49,6 +49,7 @@
 	<div id='btn-append-normal-js' class="btn">动态添加正常脚本文件</div>
 </div>
 <script>
+	/*
     window.httphijack.init({
         whiteList: ['baidu.com','b.com','c.com'],
         rules: {
@@ -59,6 +60,7 @@
             "dynamicScript": true
         }
     });
+    */
 
     // 动态添加可疑脚本文件
     document.getElementById('btn-append-xss-js').addEventListener('click', function(){
